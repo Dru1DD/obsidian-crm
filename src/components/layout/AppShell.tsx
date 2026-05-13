@@ -1,6 +1,7 @@
 import TabBar from './TabBar';
 import Sidebar from './Sidebar';
 import ContentArea from './ContentArea';
+import ChatButton from '@/components/chat/ChatButton';
 
 export default function AppShell() {
   return (
@@ -10,6 +11,7 @@ export default function AppShell() {
         <Sidebar />
         <ContentArea />
       </div>
+      <ChatButton />
     </div>
   );
 }
