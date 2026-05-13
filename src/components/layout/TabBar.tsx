@@ -7,6 +7,8 @@ import { isVaultFolder } from '@/types';
 export default function TabBar() {
   const vault = useVaultStore((s) => s.vault);
   const reset = useVaultStore((s) => s.reset);
+  const exportVault = useVaultStore((s) => s.exportVault);
+  const dirtyCount = useVaultStore((s) => s.dirtyFiles.size);
   const activeTab = useUIStore((s) => s.activeTab);
   const setActiveTab = useUIStore((s) => s.setActiveTab);
   const setActiveFile = useUIStore((s) => s.setActiveFile);
@@ -28,7 +30,6 @@ export default function TabBar() {
 
   return (
     <div className="flex items-center border-b border-neutral-800 bg-neutral-950 px-3 h-10 gap-1 shrink-0">
-      {/* Vault name */}
       <span className="text-xs text-neutral-600 mr-2 font-mono">{vault.name}</span>
 
       <div className="w-px h-4 bg-neutral-800 mr-2" />
@@ -49,6 +50,22 @@ export default function TabBar() {
       ))}
 
       <div className="flex-1" />
+
+      {dirtyCount > 0 && (
+        <span className="text-xs text-amber-500/70 mr-1">
+          {dirtyCount} unsaved
+        </span>
+      )}
+
+      <button
+        onClick={exportVault}
+        title="Export vault as ZIP"
+        className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors px-2 py-1"
+      >
+        ↓ ZIP
+      </button>
+
+      <div className="w-px h-4 bg-neutral-800 mx-1" />
 
       <button
         onClick={handleClose}

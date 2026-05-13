@@ -4,6 +4,9 @@ export interface GraphNode {
   path: string;
   linkCount: number;
   group: string;
+  type?: string;
+  status?: string;
+  tags?: string[];
 }
 
 export interface GraphEdge {

@@ -7,12 +7,21 @@ export function buildGraphData(vault: Vault): GraphData {
   const edgeSet = new Set<string>();
 
   for (const file of vault.files.values()) {
+    const fm = file.frontmatter;
+    const type = fm.type as string | undefined;
+    const status = fm.status as string | undefined;
+    const rawTags = fm.tags;
+    const tags = Array.isArray(rawTags) ? (rawTags as string[]) : undefined;
+
     nodes.push({
       id: file.id,
       label: file.name,
       path: file.path,
       linkCount: file.outlinks.length + file.backlinks.length,
-      group: file.path.split('/')[0] ?? 'root',
+      group: type ?? file.path.split('/')[0] ?? 'root',
+      type,
+      status,
+      tags,
     });
 
     for (const targetId of file.outlinks) {

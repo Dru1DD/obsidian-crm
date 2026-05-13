@@ -1,4 +1,4 @@
-export type ViewMode = 'document' | 'graph' | 'split';
+export type ViewMode = 'document' | 'graph' | 'split' | 'kanban' | 'calendar';
 
 export interface UIState {
   activeFileId: string | null;
@@ -6,4 +6,6 @@ export interface UIState {
   sidebarCollapsed: boolean;
   viewMode: ViewMode;
   graphFocusedNodeId: string | null;
+  isEditing: boolean;
+  showFrontmatter: boolean;
 }

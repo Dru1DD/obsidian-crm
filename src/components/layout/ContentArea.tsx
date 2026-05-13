@@ -1,7 +1,11 @@
 import { useUIStore } from '@/stores';
 import { useActiveFile } from '@/hooks';
 import MarkdownView from '@/components/markdown/MarkdownView';
+import EditorView from '@/components/markdown/EditorView';
 import GraphCanvas from '@/components/graph/GraphCanvas';
+import KanbanView from '@/components/kanban/KanbanView';
+import CalendarView from '@/components/calendar/CalendarView';
+import FrontmatterPanel from '@/components/frontmatter/FrontmatterPanel';
 import ViewToggle from './ViewToggle';
 
 function EmptyState() {
@@ -18,17 +22,28 @@ function EmptyState() {
 
 export default function ContentArea() {
   const viewMode = useUIStore((s) => s.viewMode);
+  const isEditing = useUIStore((s) => s.isEditing);
+  const showFrontmatter = useUIStore((s) => s.showFrontmatter);
   const activeFile = useActiveFile();
 
-  const docPanel = activeFile ? <MarkdownView file={activeFile} /> : <EmptyState />;
+  const docContent = activeFile
+    ? isEditing
+      ? <EditorView key={activeFile.id} file={activeFile} />
+      : <MarkdownView file={activeFile} />
+    : <EmptyState />;
+
+  const showPanel = showFrontmatter && activeFile && viewMode === 'document' && !isEditing;
 
   return (
     <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
       <ViewToggle />
 
       {viewMode === 'document' && (
-        <div className="flex-1 overflow-y-auto">
-          {docPanel}
+        <div className="flex flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto min-w-0">
+            {docContent}
+          </div>
+          {showPanel && <FrontmatterPanel key={activeFile!.id} file={activeFile!} />}
         </div>
       )}
 
@@ -41,11 +56,23 @@ export default function ContentArea() {
       {viewMode === 'split' && (
         <div className="flex flex-1 min-h-0">
           <div className="flex-1 overflow-y-auto border-r border-neutral-800">
-            {docPanel}
+            {docContent}
           </div>
           <div className="flex-1">
             <GraphCanvas />
           </div>
+        </div>
+      )}
+
+      {viewMode === 'kanban' && (
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <KanbanView />
+        </div>
+      )}
+
+      {viewMode === 'calendar' && (
+        <div className="flex-1 overflow-y-auto">
+          <CalendarView />
         </div>
       )}
     </div>

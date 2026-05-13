@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { VaultNode } from '@/types';
 import { isVaultFile, isVaultFolder } from '@/types';
-import { useUIStore } from '@/stores';
+import { useUIStore, useVaultStore } from '@/stores';
 
 interface Props {
   node: VaultNode;
@@ -14,11 +14,13 @@ export default function FileTreeNode({ node, depth }: Props) {
   const [open, setOpen] = useState(depth === 0);
   const activeFileId = useUIStore((s) => s.activeFileId);
   const setActiveFile = useUIStore((s) => s.setActiveFile);
+  const dirtyFiles = useVaultStore((s) => s.dirtyFiles);
 
   const indent = depth * 12;
 
   if (isVaultFile(node)) {
     const active = activeFileId === node.id;
+    const dirty = dirtyFiles.has(node.id);
     return (
       <button
         onClick={() => setActiveFile(node.id)}
@@ -31,7 +33,10 @@ export default function FileTreeNode({ node, depth }: Props) {
         )}
       >
         <FileIcon active={active} />
-        <span className="truncate">{node.name}</span>
+        <span className="truncate flex-1">{node.name}</span>
+        {dirty && (
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title="Unsaved changes" />
+        )}
       </button>
     );
   }
