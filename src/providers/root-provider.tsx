@@ -1,9 +1,10 @@
 import Routing from "@/routing";
 import { ToastContainer, Zoom } from "react-toastify";
+import ErrorBoundary from "@/components/error-boundary";
 
 const RootProvider = () => {
   return (
-    <>
+    <ErrorBoundary>
       <Routing />
       <ToastContainer
         position="bottom-right"
@@ -19,7 +20,7 @@ const RootProvider = () => {
         theme="dark"
         transition={Zoom}
       />
-    </>
+    </ErrorBoundary>
   );
 };
 

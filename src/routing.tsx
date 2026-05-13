@@ -1,14 +1,22 @@
-import { BrowserRouter, Routes, Route } from 'react-router';
-import LandingPage from '@/pages/landing';
-import ExplorerPage from '@/pages/explorer';
+import { createBrowserRouter, RouterProvider } from "react-router";
 
-const Routing = () => (
-  <BrowserRouter>
-    <Routes>
-      <Route index element={<LandingPage />} />
-      <Route path="/vault/*" element={<ExplorerPage />} />
-    </Routes>
-  </BrowserRouter>
-);
+import LandingPage from "@/pages/landing";
+import ExplorerPage from "@/pages/explorer";
+import ErrorPage from "@/pages/error";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <LandingPage />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "/vault/*",
+    element: <ExplorerPage />,
+    errorElement: <ErrorPage />,
+  },
+]);
+
+const Routing = () => <RouterProvider router={router} />;
 
 export default Routing;
