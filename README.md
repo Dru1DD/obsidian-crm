@@ -1,75 +1,105 @@
-# React + TypeScript + Vite
+# Vault Explorer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser-based viewer for [Obsidian](https://obsidian.md) vaults. Load a vault from a local folder or `.zip` archive, browse your notes, visualize the link graph, and chat with your knowledge base via the Claude API — all without uploading files to any server.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Vault loading** — drag-and-drop a folder or `.zip` archive; parsing happens entirely in the browser
+- **File tree navigation** — collapsible sidebar with tab-based navigation scoped to top-level folders
+- **Markdown rendering** — full GitHub Flavored Markdown with syntax highlighting and wiki-link (`[[Note]]`) resolution
+- **Knowledge graph** — interactive node graph (powered by React Flow) showing outlinks and backlinks; click a node to open the file
+- **Split view** — document and graph side by side
+- **Claude AI chat** — ask questions about your vault; the assistant receives your notes as context and streams answers in real time (requires your own Anthropic API key)
+- **Frontmatter parsing** — YAML frontmatter extracted and available per file
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+| Layer | Library |
+|---|---|
+| Framework | React 19 + TypeScript |
+| Build | Vite 8 + Rolldown / Babel (React Compiler) |
+| Styling | Tailwind CSS v4 |
+| Routing | React Router v7 |
+| State | Zustand v5 |
+| Graph | @xyflow/react (React Flow) |
+| Markdown | react-markdown + remark-gfm + rehype-highlight |
+| ZIP parsing | JSZip |
+| AI | Anthropic SDK (`claude-sonnet-4-6`) |
+| Animations | Framer Motion |
 
-Note: This will impact Vite dev & build performances.
+## Getting Started
 
-## Expanding the ESLint configuration
+### Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 18+
+- [pnpm](https://pnpm.io/) (recommended) — or npm/yarn
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+pnpm dev
 ```
+
+The app runs at `http://localhost:5173`.
+
+### Production build
+
+```bash
+pnpm build
+pnpm preview   # serve the dist/ folder locally
+```
+
+## Usage
+
+1. Open the app in a browser.
+2. Drag your Obsidian vault folder onto the drop zone, **or** drag/click to select a `.zip` export of the vault.
+3. The vault is parsed client-side — no files leave your machine.
+4. Use the sidebar to browse files and the top tabs to navigate between top-level folders.
+5. Toggle between **Document**, **Graph**, and **Split** views with the view switcher.
+6. Click the chat button (bottom-right) and enter your Anthropic API key to start asking questions about your notes.
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── chat/          # Claude chat panel (ApiKeySetup, ChatWindow, MessageList)
+│   ├── error-boundary/
+│   ├── graph/         # React Flow canvas and custom node
+│   ├── layout/        # AppShell, Sidebar, TabBar, ContentArea, ViewToggle
+│   ├── markdown/      # MarkdownView + WikiLink renderer
+│   ├── navigation/    # FileTree, FileTreeNode
+│   └── upload/        # UploadZone (landing drop target)
+├── hooks/             # useActiveFile, useGraphData
+├── lib/
+│   ├── claude/        # streamChat — Anthropic SDK integration
+│   ├── graph/         # Graph node/edge builder from vault links
+│   └── parser/        # Vault loading: folder & zip parsing, frontmatter, link resolver
+├── pages/             # landing, explorer, error
+├── providers/         # RootProvider
+├── stores/            # Zustand stores: vault, ui, chat
+├── styles/
+└── types/             # Vault, Graph, UI type definitions
+```
+
+## AI Chat
+
+The chat feature uses the Anthropic Claude API directly from the browser (`dangerouslyAllowBrowser: true`). Your API key is stored only in the browser session (Zustand in-memory store) and is never sent anywhere other than `api.anthropic.com`.
+
+The assistant receives up to **120 000 characters** of vault content as its system prompt. For very large vaults, notes are included in order until the limit is reached.
+
+Model: `claude-sonnet-4-6`, max tokens: `4096`.
+
+## Linting
+
+```bash
+pnpm lint
+```
+
+ESLint is configured with `typescript-eslint`, `eslint-plugin-react-hooks`, and `eslint-plugin-react-refresh`.
