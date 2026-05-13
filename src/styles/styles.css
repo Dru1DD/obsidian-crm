@@ -1,0 +1,94 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    background: #0d0d0f;
+    color: #e2e0e7;
+    font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root {
+    width: 100%;
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* React Flow base override */
+  .react-flow__attribution {
+    display: none;
+  }
+}
+
+/* Markdown prose */
+.prose {
+  color: #c9c7d0;
+  line-height: 1.7;
+  font-size: 15px;
+}
+.prose h1, .prose h2, .prose h3, .prose h4 {
+  color: #f0eef5;
+  font-weight: 600;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+.prose h1 { font-size: 1.8em; }
+.prose h2 { font-size: 1.4em; }
+.prose h3 { font-size: 1.15em; }
+.prose p { margin: 0.75em 0; }
+.prose a { color: #a78bfa; text-decoration: underline; }
+.prose code {
+  background: #1e1e2a;
+  border: 1px solid #2e2e3e;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.875em;
+  color: #e0c3fc;
+}
+.prose pre {
+  background: #1a1a26;
+  border: 1px solid #2e2e3e;
+  border-radius: 8px;
+  padding: 1em;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+.prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: 0.85em;
+}
+.prose blockquote {
+  border-left: 3px solid #7c3aed;
+  margin: 1em 0;
+  padding: 0.25em 1em;
+  color: #9ca3af;
+}
+.prose ul, .prose ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+.prose li { margin: 0.2em 0; }
+.prose table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 0.9em; }
+.prose th, .prose td { border: 1px solid #2e2e3e; padding: 6px 12px; text-align: left; }
+.prose th { background: #1e1e2a; color: #f0eef5; }
+.prose input[type="checkbox"] { margin-right: 6px; }
+.prose hr { border: none; border-top: 1px solid #2e2e3e; margin: 2em 0; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2e2e3e; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3e3e50; }
