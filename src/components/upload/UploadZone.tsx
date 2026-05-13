@@ -21,29 +21,36 @@ export default function UploadZone() {
   const setActiveTab = useUIStore((s) => s.setActiveTab);
   const navigate = useNavigate();
 
-  const handleSource = useCallback(async (source: VaultSource) => {
+  const setDirectoryHandle = useVaultStore((s) => s.setDirectoryHandle);
+
+  const handleSource = useCallback(async (source: VaultSource, dirHandle?: FileSystemDirectoryHandle) => {
     await loadVault(source);
+    setDirectoryHandle(dirHandle ?? null);
     const vault = useVaultStore.getState().vault;
     if (vault) {
       const firstTab = getTopTabs(vault.root);
       if (firstTab) setActiveTab(firstTab);
       navigate('/vault');
     }
-  }, [loadVault, setActiveTab, navigate]);
+  }, [loadVault, setDirectoryHandle, setActiveTab, navigate]);
 
-  const onDrop = useCallback((e: React.DragEvent) => {
+  const onDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault();
     setDragging(false);
     const items = e.dataTransfer.items;
     if (!items) return;
 
-    // Check if it's a zip
     const files = [...e.dataTransfer.files];
     const zip = files.find(f => f.name.endsWith('.zip'));
     if (zip) {
       handleSource({ type: 'zip', file: zip });
     } else {
-      handleSource({ type: 'folder', items });
+      let dirHandle: FileSystemDirectoryHandle | undefined;
+      if (items[0] && 'getAsFileSystemHandle' in items[0]) {
+        const h = await (items[0] as DataTransferItem & { getAsFileSystemHandle(): Promise<FileSystemHandle | null> }).getAsFileSystemHandle();
+        if (h?.kind === 'directory') dirHandle = h as FileSystemDirectoryHandle;
+      }
+      handleSource({ type: 'folder', items }, dirHandle);
     }
   }, [handleSource]);
 

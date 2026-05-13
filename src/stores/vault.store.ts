@@ -11,10 +11,13 @@ interface VaultStore {
   loading: boolean;
   error: string | null;
   dirtyFiles: Set<string>;
+  directoryHandle: FileSystemDirectoryHandle | null;
   loadVault: (source: VaultSource) => Promise<void>;
+  setDirectoryHandle: (handle: FileSystemDirectoryHandle | null) => void;
   updateFile: (id: string, content: string) => void;
   createFile: (folderPath: string, filename: string) => string | null;
   exportVault: () => Promise<void>;
+  saveToFolder: () => Promise<void>;
   reset: () => void;
 }
 
@@ -23,6 +26,9 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
   loading: false,
   error: null,
   dirtyFiles: new Set(),
+  directoryHandle: null,
+
+  setDirectoryHandle: (handle) => set({ directoryHandle: handle }),
 
   loadVault: async (source) => {
     set({ loading: true, error: null });
@@ -120,5 +126,27 @@ export const useVaultStore = create<VaultStore>((set, get) => ({
     URL.revokeObjectURL(url);
   },
 
-  reset: () => set({ vault: null, loading: false, error: null, dirtyFiles: new Set() }),
+  saveToFolder: async () => {
+    const { vault, dirtyFiles, directoryHandle } = get();
+    if (!vault || !directoryHandle || dirtyFiles.size === 0) return;
+
+    for (const fileId of dirtyFiles) {
+      const file = vault.files.get(fileId);
+      if (!file) continue;
+
+      const parts = file.path.split('/');
+      let dir: FileSystemDirectoryHandle = directoryHandle;
+      for (let i = 0; i < parts.length - 1; i++) {
+        dir = await dir.getDirectoryHandle(parts[i], { create: true });
+      }
+      const fileHandle = await dir.getFileHandle(parts[parts.length - 1], { create: true });
+      const writable = await fileHandle.createWritable();
+      await writable.write(file.content);
+      await writable.close();
+    }
+
+    set({ dirtyFiles: new Set() });
+  },
+
+  reset: () => set({ vault: null, loading: false, error: null, dirtyFiles: new Set(), directoryHandle: null }),
 }));

@@ -8,7 +8,9 @@ export default function TabBar() {
   const vault = useVaultStore((s) => s.vault);
   const reset = useVaultStore((s) => s.reset);
   const exportVault = useVaultStore((s) => s.exportVault);
+  const saveToFolder = useVaultStore((s) => s.saveToFolder);
   const dirtyCount = useVaultStore((s) => s.dirtyFiles.size);
+  const hasDirectoryHandle = useVaultStore((s) => s.directoryHandle !== null);
   const activeTab = useUIStore((s) => s.activeTab);
   const setActiveTab = useUIStore((s) => s.setActiveTab);
   const setActiveFile = useUIStore((s) => s.setActiveFile);
@@ -55,6 +57,21 @@ export default function TabBar() {
         <span className="text-xs text-amber-500/70 mr-1">
           {dirtyCount} unsaved
         </span>
+      )}
+
+      {hasDirectoryHandle && (
+        <button
+          onClick={saveToFolder}
+          title="Save changes to original folder"
+          className={clsx(
+            'text-xs transition-colors px-2 py-1',
+            dirtyCount > 0
+              ? 'text-amber-400 hover:text-amber-200'
+              : 'text-neutral-500 hover:text-neutral-300',
+          )}
+        >
+          ↑ Save
+        </button>
       )}
 
       <button
